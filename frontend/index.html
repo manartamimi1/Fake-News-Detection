@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fake News Detection</title>
+  <link rel="stylesheet" href="style.css">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <a class="logo" href="#">TruthLens<span>.</span></a>
+      <ul class="menu-link"> 
+        <i id="bx-close" class="bx bx-x"></i>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#detect">Detect News</a></li>
+        <li><a href="#About">About Us</a></li>
+      </ul>
+      <i id="bx-menu" class='bx bx-menu'></i>
+    </nav>
+  </header>
+    <!--Home-->
+  <section id="home" class="home">
+    <h1>Uncover the Truth with LLM Technology</h1>
+    <h2>Fake News Detection Using Large Language Models</h2>
+     <div class="container">
+      <div class="about-item">
+        <i class='bx bx-book-open'></i>
+        <h3>Our Mission</h3>
+        <p>We are committed to providing accurate and reliable news analysis, ensuring users stay informed with credible sources.</p>
+      </div>
+      <div class="about-item">
+        <i class='bx bx-circle'></i>
+        <h3>Our Vision</h3>
+        <p>To create a world where misinformation is minimized, empowering users with tools to verify the authenticity of news.</p>
+      </div>
+      <div class="about-item">
+        <i class='bx bx-plus'></i>
+        <h3>Technology</h3>
+        <p>Utilizing Bert model and NLP techniques to detect fake news in real-time with high accuracy.</p>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Hero Section -->
+  <section class="hero" id="detect">
+    <div class="hero-content">
+      <h1>Detect Fake News</h1>
+      <p>Enter text or upload an image to analyze authenticity.</p>
+  
+      <div class="input-box">
+        <textarea id="textInput" placeholder="Enter text here..."></textarea>
+      </div>
+      <hr>
+      <h3>Or upload an image</h3>
+      
+      <div class="file-upload">
+      <label class="upload-container">
+      <span class="upload-text">Choose File</span>
+      <input type="file" id="imageInput" name="file" accept="image/*"> 
+      
+      </label>
+      <p class="file-name" id="fileName"></p>
+      </div>
+      <button  class="detect-btn-img" id="uploadImageBtn">Detect Image</button>
+      <button id="detectBtn" class="detect-btn">Detect</button>
+      <div id="result" class="result-box"></div>
+      <div id="confidence" class="confidence-box"></div>
+    </div>
+  </section>
+
+ 
+    <!-- Team Section -->
+    <section class="team-section" id="About">
+      <h1 class="title">Team members</h1>
+  <div class="team-container">
+    <div class="supervisor-row">
+      <div class="person supervisor">
+        <img src="images/dr.jpg" alt="Supervisor Photo">
+        <div class="info">
+          <div class="name">Dr Mohammad Alhammouri</div>
+          <div class="id">Supervisor</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="team-row">
+      <div class="person">
+        <img src="images/manar.jpg" alt="Member 1">
+        <div class="info">
+          <div class="name">Manar Altamimi</div>
+          <div class="id">ID: 2044345</div>
+        </div>
+      </div>
+      <div class="person">
+        <img src="images/deeee.jpg" alt="Member 2">
+        <div class="info">
+          <div class="name">Dimah Mohmoud</div>
+          <div class="id">ID: 2038190</div>
+        </div>
+      </div><div class="person">
+        <img src="images/shahed1.jpg" alt="Member 2">
+        <div class="info">
+          <div class="name">Shahed Al-Jammal</div>
+          <div class="id">ID: 2034695</div>
+        </div>
+      </div><div class="person">
+        <img src="images/saraa.jpg" alt="Member 2">
+        <div class="info">
+          <div class="name">Sara Taqiedeen</div>
+          <div class="id">ID: 2036490</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+  document.getElementById('uploadImageBtn').addEventListener('click', async function () {
+    const imageInput = document.getElementById('imageInput').files[0];
+    const resultBox = document.getElementById('result');
+    const confidenceBox = document.getElementById('confidence');
+    const textInput = document.getElementById('textInput');  // Get the text input box
+
+    resultBox.innerHTML = '';
+    confidenceBox.innerHTML = '';
+
+    if (!imageInput) {
+      resultBox.innerHTML = "Please upload an image.";
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('image', imageInput);
+
+    try {
+      const response = await fetch('http://localhost:5000/predict_from_image', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Set the extracted text into the textarea
+        textInput.value = data.extracted_text;  // This will display the extracted text in the input box
+
+        resultBox.innerHTML = `Prediction: <strong>${data.prediction}</strong>`;
+        confidenceBox.innerHTML = `Confidence: <strong>${data.confidence}%</strong>`;
+      } else {
+        resultBox.innerHTML = `Error: ${data.error}`;
+      }
+
+    } catch (error) {
+      console.error(error);
+      resultBox.innerHTML = "An error occurred. Please try again.";
+    }
+  });
+
+  document.getElementById('detectBtn').addEventListener('click', async function () {
+    const textInput = document.getElementById('textInput').value.trim();
+    const resultBox = document.getElementById('result');
+    const confidenceBox = document.getElementById('confidence');
+
+    resultBox.innerHTML = '';
+    confidenceBox.innerHTML = '';
+
+    if (!textInput) {
+      resultBox.innerHTML = "Please enter some text.";
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('text', textInput);
+
+    try {
+      const response = await fetch('http://localhost:5000/detect', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        resultBox.innerHTML = `Prediction: <strong>${data.prediction}</strong>`;
+        confidenceBox.innerHTML = `Confidence: <strong>${data.confidence}%</strong>`;
+      } else {
+        resultBox.innerHTML = `Error: ${data.error}`;
+      }
+
+    } catch (error) {
+      console.error(error);
+      resultBox.innerHTML = "An error occurred. Please try again.";
+    }
+  });
+});
+
+console.log("Script loaded");
+const detectBtn = document.getElementById('detectBtn');
+console.log("Detect button found?", detectBtn !== null);
+
+</script>
+</body>
+</html>
+
+
